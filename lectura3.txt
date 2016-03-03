@@ -1,0 +1,179 @@
+CREATE TABLE calificacion
+(
+  id_usuario integer NOT NULL,
+  id_evaluacion integer NOT NULL,
+  nota integer,
+  fecha timestamp without time zone NOT NULL,
+  CONSTRAINT "PK_calificaciones" PRIMARY KEY (id_usuario, id_evaluacion, fecha),
+  CONSTRAINT "FK_calificacion_evaluacion" FOREIGN KEY (id_evaluacion)
+      REFERENCES evaluacion (id_evaluacion) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_calificacion_usuario" FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE curso
+(
+  id_curso serial NOT NULL,
+  nombre character varying(300),
+  fecha_inicio date,
+  imagen_presentacion character varying(400),
+  comienzo character varying(20),
+  id_tematica integer,
+  nivel character varying(20),
+  duracion character varying(100),
+  esfuerzo character varying(150),
+  precio character varying(100),
+  prerrequisitos character varying(3000),
+  CONSTRAINT "PK_curso" PRIMARY KEY (id_curso),
+  CONSTRAINT "FK_curso_tematica" FOREIGN KEY (id_tematica)
+      REFERENCES tematica (id_tematica) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE evaluacion
+(
+  id_evaluacion serial NOT NULL,
+  id_curso integer,
+  calificable character varying(4),
+  semana integer,
+  nombre character varying(300),
+  CONSTRAINT "PK_evaluacion" PRIMARY KEY (id_evaluacion),
+  CONSTRAINT "FK_evaluacion_curso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE leccion
+(
+  id_leccion serial NOT NULL,
+  nombre character varying(300),
+  id_curso integer,
+  server_contenido_grafico character varying(100),
+  contenido_grafico character varying(400),
+  contenido_texto character varying(10000),
+  semana integer,
+  CONSTRAINT "PK_leccion_id" PRIMARY KEY (id_leccion),
+  CONSTRAINT "FK_leccion_curso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE pregunta
+(
+  id_pregunta serial NOT NULL,
+  nombre character varying(500),
+  tipo character varying(20),
+  opcion_a character varying(300),
+  opcion_b character varying(300),
+  opcion_c character varying(300),
+  opcion_d character varying(300),
+  opcion_multiple character varying(4),
+  respuesta character varying(400),
+  id_evaluacion integer,
+  CONSTRAINT "PK_pregunta" PRIMARY KEY (id_pregunta),
+  CONSTRAINT "FK_pregunta_evaluacion" FOREIGN KEY (id_evaluacion)
+      REFERENCES evaluacion (id_evaluacion) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE pregunta_leccion
+(
+  id_pregunta serial NOT NULL,
+  id_usuario integer,
+  id_leccion integer,
+  pregunta character varying(400),
+  fecha_creacion timestamp without time zone,
+  CONSTRAINT "PK_pregunta_leccion" PRIMARY KEY (id_pregunta),
+  CONSTRAINT "FK_pregunta_leccion_leccion" FOREIGN KEY (id_leccion)
+      REFERENCES leccion (id_leccion) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_pregunta_leccion_usuario" FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE relacion_usuario_curso
+(
+  id_usuario integer NOT NULL,
+  id_curso integer NOT NULL,
+  tipo_relacion character varying(20) NOT NULL,
+  fecha_creacion timestamp without time zone,
+  estado character varying(10),
+  CONSTRAINT "PK_relacion_usuario_curso" PRIMARY KEY (id_usuario, id_curso, tipo_relacion),
+  CONSTRAINT "FK_relacion_usuario_curso_idcurso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_relacion_usuario_curso_idusuario" FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+  CREATE TABLE temario
+  (
+    id_temario integer NOT NULL DEFAULT nextval('"Temario_id_temario_seq"'::regclass),
+    titulo character varying(30),
+    contenido character varying(5000),
+    posicion integer,
+    id_curso integer,
+    tipo_contenido character varying(50),
+    usuario character varying,
+    CONSTRAINT "PK_temario_curso" PRIMARY KEY (id_temario),
+    CONSTRAINT "FK_temario_curso" FOREIGN KEY (id_curso) REFERENCES curso (id_curso) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+  )
+
+  CREATE TABLE tematica
+  (
+    id_tematica serial NOT NULL,
+    nombre character varying(400),
+    CONSTRAINT "PK_tematica" PRIMARY KEY (id_tematica)
+  )
+
+CREATE TABLE usuario
+(
+  id serial NOT NULL,
+  nombre character varying(300),
+  apellido character varying(300),
+  id_social character varying(100),
+  red_social character varying(100),
+  tipo_usuario character varying(50),
+  fecha timestamp without time zone,
+  tipo_inteligencia character varying(100),
+  foto character varying(300),
+  titulo character varying(500),
+  ciudad integer,
+  pais integer,
+  universidad integer,
+  CONSTRAINT "PK_usuario" PRIMARY KEY (id),
+  CONSTRAINT "FK_usuario_ciudad" FOREIGN KEY (ciudad)
+      REFERENCES ciudad (id_ciudad) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_usuario_pais" FOREIGN KEY (pais)
+      REFERENCES pais (id_pais) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_usuario_universidad" FOREIGN KEY (universidad)
+      REFERENCES universidad (id_universidad) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+  )
+
+  CREATE TABLE universidad
+  (
+    id_universidad serial NOT NULL,
+    nombre character varying(200),
+    CONSTRAINT "PK_universidad" PRIMARY KEY (id_universidad)
+  )
+
+  CREATE TABLE ciudad
+  (
+    id_ciudad serial NOT NULL,
+    nombre character varying(300),
+    CONSTRAINT "PK_ciudad" PRIMARY KEY (id_ciudad)
+  )
+
+  CREATE TABLE pais
+  (
+    id_pais serial NOT NULL,
+    nombre character varying(300),
+    CONSTRAINT "FK_pais" PRIMARY KEY (id_pais)
+  )

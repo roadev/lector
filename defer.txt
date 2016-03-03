@@ -1,0 +1,10 @@
+calificacion
+curso
+evaluacion
+leccion
+pregunta
+pregunta_leccion
+relacion_usuario_curso
+temario
+tematica
+usuario
