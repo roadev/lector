@@ -26,8 +26,9 @@ func main() {
 
 	//-------Variables de control--------
 	//  lenguaje := "PHP"  //v 0.1
-	lenguaje := "Laravel" //v 0.9
+	//lenguaje := "Laravel" //v 0.9
 	//  lenguaje := "Django"  //v 0.3
+	lenguaje := "Rails" //v 0.1
 
 	dbHost := "localhost"
 	dbUser := "usuario"
@@ -194,6 +195,17 @@ func main() {
 	for x := range triples {
 		fmt.Printf("tabla %v \n", tablas[x])
 		fmt.Printf(" %v \n\n", triples[x])
+	}
+
+	if lenguaje == "Rails" {
+		os.Mkdir("."+string(filepath.Separator)+"Rails", 0777)
+		f := createFile("Rails/commands.txt")
+		for y := range tablas {
+			writeFile(f, ""+getCommandsRails(triples, tablas, y))
+		}
+		writeFile(f, " ")
+		defer closeFile(f)
+
 	}
 
 	if lenguaje == "Django" {
@@ -1236,6 +1248,62 @@ func getVariablesUpdateLumen(triples [][][]string, tablas []string, element int)
 	for x := range triples[element][0] {
 		resultado = resultado + "$" + tablas[element] + "->" + triples[element][0][x] + "= $request->input('" + triples[element][0][x] + "');\n\t\t"
 	}
+	return resultado
+}
+
+//
+//METODOS RAILS
+//
+func getCommandsRails(triples [][][]string, tablas []string, element int) string {
+	resultado := ""
+	k := 0
+	resultado = resultado + "rails generate scaffold " + tablas[element] + " "
+
+	for k = range triples[element][0] {
+
+		if triples[element][1][k] == "integer" {
+			resultado = resultado + triples[element][0][k] + ":integer"
+		} else if triples[element][1][k] == "serial" {
+			resultado = resultado + triples[element][0][k] + ":primary_key"
+		} else if triples[element][1][k] == "double" {
+			resultado = resultado + triples[element][0][k] + ":decimal"
+		} else if triples[element][1][k] == "date" {
+			resultado = resultado + triples[element][0][k] + ":date"
+		} else if ((triples[element][1][k])[0:9]) == "character" {
+			resultado = resultado + triples[element][0][k] + ":string"
+		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
+			resultado = resultado + triples[element][0][k] + ":timestamp"
+		} else {
+			resultado = resultado + triples[element][0][k] + ":string"
+		}
+
+		//if stringInSlice(triples[element][0][k], triples[element][3]) && stringInSlice(triples[element][0][k], triples[element][4]) {
+		//	resultado = resultado + triples[element][0][k] + "= models.ForeignKey(primary_key=True)\n    "
+		//}
+		if len(triples[element][4]) > 0 {
+			if stringInSlice(triples[element][0][k], triples[element][4]) {
+				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
+			} else {
+				resultado = resultado + " "
+			}
+		} else if len(triples[element][3]) > 0 {
+			if stringInSlice(triples[element][0][k], triples[element][3]) && triples[element][1][k] == "serial" {
+				//resultado = resultado + triples[element][0][k] + "= models.AutoField(primary_key=True)\n    "
+				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
+			} else {
+				resultado = resultado + " "
+
+			}
+		} else {
+			resultado = resultado + " "
+		}
+
+		/* else if stringInSlice(triples[element][0][k], triples[element][3]) {
+			resultado = resultado + triples[element][0][k] + "= models.CharField(primary_key=True, max_length=5000)\n    "
+		}
+		*/
+	}
+
 	return resultado
 }
 

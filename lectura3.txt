@@ -1,16 +1,56 @@
+CREATE TABLE avance
+(
+  id_curso integer NOT NULL,
+  id_usuario integer NOT NULL,
+  semana integer NOT NULL,
+  tipo character varying(30) NOT NULL,
+  fecha timestamp without time zone,
+  porcentaje integer,
+  CONSTRAINT "FK_avance" PRIMARY KEY (id_curso, id_usuario, semana, tipo),
+  CONSTRAINT "FK_avance_curso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_avance_usuario" FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE badge
+(
+  id_curso integer NOT NULL,
+  color1 character varying(10),
+  color2 character varying,
+  CONSTRAINT "PK_badge" PRIMARY KEY (id_curso),
+  CONSTRAINT "FK_badge_curso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
 CREATE TABLE calificacion
 (
   id_usuario integer NOT NULL,
   id_evaluacion integer NOT NULL,
   nota integer,
   fecha timestamp without time zone NOT NULL,
+  intentos integer DEFAULT 0,
+  id_curso integer,
   CONSTRAINT "PK_calificaciones" PRIMARY KEY (id_usuario, id_evaluacion, fecha),
+  CONSTRAINT "FK_calificacion_curso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "FK_calificacion_evaluacion" FOREIGN KEY (id_evaluacion)
       REFERENCES evaluacion (id_evaluacion) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "FK_calificacion_usuario" FOREIGN KEY (id_usuario)
       REFERENCES usuario (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE ciudad
+(
+  id_ciudad serial NOT NULL,
+  nombre character varying(200),
+  CONSTRAINT "PK_ciudad" PRIMARY KEY (id_ciudad)
 )
 
 CREATE TABLE curso
@@ -39,6 +79,7 @@ CREATE TABLE evaluacion
   calificable character varying(4),
   semana integer,
   nombre character varying(300),
+  porcentaje double precision,
   CONSTRAINT "PK_evaluacion" PRIMARY KEY (id_evaluacion),
   CONSTRAINT "FK_evaluacion_curso" FOREIGN KEY (id_curso)
       REFERENCES curso (id_curso) MATCH SIMPLE
@@ -58,6 +99,13 @@ CREATE TABLE leccion
   CONSTRAINT "FK_leccion_curso" FOREIGN KEY (id_curso)
       REFERENCES curso (id_curso) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE pais
+(
+  id_pais serial NOT NULL,
+  nombre character varying(200),
+  CONSTRAINT "FK_pais" PRIMARY KEY (id_pais)
 )
 
 CREATE TABLE pregunta
@@ -85,11 +133,29 @@ CREATE TABLE pregunta_leccion
   id_leccion integer,
   pregunta character varying(400),
   fecha_creacion timestamp without time zone,
+  relacion integer,
   CONSTRAINT "PK_pregunta_leccion" PRIMARY KEY (id_pregunta),
   CONSTRAINT "FK_pregunta_leccion_leccion" FOREIGN KEY (id_leccion)
       REFERENCES leccion (id_leccion) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "FK_pregunta_leccion_usuario" FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+
+CREATE TABLE registro
+(
+  id_curso integer NOT NULL,
+  id_leccion integer NOT NULL,
+  id_usuario integer NOT NULL,
+  CONSTRAINT "PK_registro" PRIMARY KEY (id_curso, id_leccion, id_usuario),
+  CONSTRAINT "FK_registro_curso" FOREIGN KEY (id_curso)
+      REFERENCES curso (id_curso) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_registro_leccion" FOREIGN KEY (id_leccion)
+      REFERENCES leccion (id_leccion) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "FK_registro_usuario" FOREIGN KEY (id_usuario)
       REFERENCES usuario (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 )
@@ -130,6 +196,13 @@ CREATE TABLE relacion_usuario_curso
     CONSTRAINT "PK_tematica" PRIMARY KEY (id_tematica)
   )
 
+  CREATE TABLE universidad
+(
+  id_universidad serial NOT NULL,
+  nombre character varying(200),
+  CONSTRAINT "PK_universidad" PRIMARY KEY (id_universidad)
+)
+
 CREATE TABLE usuario
 (
   id serial NOT NULL,
@@ -155,25 +228,4 @@ CREATE TABLE usuario
   CONSTRAINT "FK_usuario_universidad" FOREIGN KEY (universidad)
       REFERENCES universidad (id_universidad) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
-  )
-
-  CREATE TABLE universidad
-  (
-    id_universidad serial NOT NULL,
-    nombre character varying(200),
-    CONSTRAINT "PK_universidad" PRIMARY KEY (id_universidad)
-  )
-
-  CREATE TABLE ciudad
-  (
-    id_ciudad serial NOT NULL,
-    nombre character varying(300),
-    CONSTRAINT "PK_ciudad" PRIMARY KEY (id_ciudad)
-  )
-
-  CREATE TABLE pais
-  (
-    id_pais serial NOT NULL,
-    nombre character varying(300),
-    CONSTRAINT "FK_pais" PRIMARY KEY (id_pais)
   )

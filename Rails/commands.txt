@@ -1,0 +1,17 @@
+rails generate scaffold avance id_curso:integer:curso id_usuario:integer:usuario semana:integer tipo:string fecha:timestamp porcentaje:integer 
+rails generate scaffold badge id_curso:integer:curso color1:string color2:string 
+rails generate scaffold calificacion id_usuario:integer:usuario id_evaluacion:integer:evaluacion nota:integer fecha:timestamp intentos:integer id_curso:integer:curso 
+rails generate scaffold ciudad id_ciudad:primary_key: nombre:string 
+rails generate scaffold curso id_curso:primary_key nombre:string fecha_inicio:date imagen_presentacion:string comienzo:string id_tematica:integer:tematica nivel:string duracion:string esfuerzo:string precio:string prerrequisitos:string 
+rails generate scaffold evaluacion id_evaluacion:primary_key id_curso:integer:curso calificable:string semana:integer nombre:string porcentaje:decimal 
+rails generate scaffold leccion id_leccion:primary_key nombre:string id_curso:integer:curso server_contenido_grafico:string contenido_grafico:string contenido_texto:string semana:integer 
+rails generate scaffold pais id_pais:primary_key: nombre:string 
+rails generate scaffold pregunta id_pregunta:primary_key nombre:string tipo:string opcion_a:string opcion_b:string opcion_c:string opcion_d:string opcion_multiple:string respuesta:string id_evaluacion:integer:evaluacion 
+rails generate scaffold pregunta_leccion id_pregunta:primary_key id_usuario:integer:usuario id_leccion:integer:leccion pregunta:string fecha_creacion:timestamp relacion:integer 
+rails generate scaffold registro id_curso:integer:curso id_leccion:integer:leccion id_usuario:integer:usuario 
+rails generate scaffold relacion_usuario_curso id_usuario:integer:usuario id_curso:integer:curso tipo_relacion:string fecha_creacion:timestamp estado:string 
+rails generate scaffold temario id_temario:integer titulo:string contenido:string posicion:integer id_curso:integer:curso tipo_contenido:string usuario:string 
+rails generate scaffold tematica id_tematica:primary_key: nombre:string 
+rails generate scaffold universidad id_universidad:primary_key: nombre:string 
+rails generate scaffold usuario id:primary_key nombre:string apellido:string id_social:string red_social:string tipo_usuario:string fecha:timestamp tipo_inteligencia:string foto:string titulo:string ciudad:integer:ciudad pais:integer:pais universidad:integer:universidad 
+ 
