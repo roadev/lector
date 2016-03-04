@@ -1256,6 +1256,7 @@ func getVariablesUpdateLumen(triples [][][]string, tablas []string, element int)
 //
 func getCommandsRails(triples [][][]string, tablas []string, element int) string {
 	resultado := ""
+	foraneosLocales := ""
 	k := 0
 	resultado = resultado + "rails generate scaffold " + tablas[element] + " "
 
@@ -1284,6 +1285,8 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 		if len(triples[element][4]) > 0 {
 			if stringInSlice(triples[element][0][k], triples[element][4]) {
 				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
+				foraneosLocales = foraneosLocales + "add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", column: :" + getElementoForaneo(triples[element][0][k], triples, element) + ", primary_key: " + triples[element][0][k] + "\n"
+
 			} else {
 				resultado = resultado + " "
 			}
@@ -1302,9 +1305,10 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 			resultado = resultado + triples[element][0][k] + "= models.CharField(primary_key=True, max_length=5000)\n    "
 		}
 		*/
+
 	}
 
-	return resultado
+	return resultado + "\n" + foraneosLocales
 }
 
 //
@@ -1357,6 +1361,16 @@ func getClaseForaneo(a string, triples [][][]string, element int) string {
 	for c, b := range triples[element][4] {
 		if b == a {
 			return triples[element][5][c]
+		}
+	}
+	return ""
+}
+
+//metodo que retorna el elemento foraneo al cual hace referencia
+func getElementoForaneo(a string, triples [][][]string, element int) string {
+	for c, b := range triples[element][4] {
+		if b == a {
+			return triples[element][6][c]
 		}
 	}
 	return ""
