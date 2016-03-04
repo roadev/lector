@@ -1265,6 +1265,7 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 			resultado = resultado + triples[element][0][k] + ":integer"
 		} else if triples[element][1][k] == "serial" {
 			resultado = resultado + triples[element][0][k] + ":primary_key"
+			///resultado = resultado + triples[element][0][k] + ":integer"
 		} else if triples[element][1][k] == "double" {
 			resultado = resultado + triples[element][0][k] + ":decimal"
 		} else if triples[element][1][k] == "date" {
@@ -1286,17 +1287,16 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 			} else {
 				resultado = resultado + " "
 			}
-		} else if len(triples[element][3]) > 0 {
-			if stringInSlice(triples[element][0][k], triples[element][3]) && triples[element][1][k] == "serial" {
-				//resultado = resultado + triples[element][0][k] + "= models.AutoField(primary_key=True)\n    "
-				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
-			} else {
-				resultado = resultado + " "
-
-			}
 		} else {
 			resultado = resultado + " "
 		}
+		/*else if len(triples[element][3]) > 0 {
+			if stringInSlice(triples[element][0][k], triples[element][3]) && triples[element][1][k] == "serial" {
+				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
+			} else {
+				resultado = resultado + " "
+			}
+		}*/
 
 		/* else if stringInSlice(triples[element][0][k], triples[element][3]) {
 			resultado = resultado + triples[element][0][k] + "= models.CharField(primary_key=True, max_length=5000)\n    "
