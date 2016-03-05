@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	//"code.google.com/p/x-go-binding/ui/x11"
@@ -207,9 +208,18 @@ func main() {
 		defer closeFile(f)
 
 		os.Mkdir("."+string(filepath.Separator)+"RailsMigrate", 0777)
-		f = createFile("RailsMigrate/commands.rb")
 		for y := range tablas {
-			writeFile(f, ""+getCommandsRails(triples, tablas, y))
+			f = createFile("RailsMigrate/20170304039" + strconv.Itoa(20+y) + "_create_" + tablas[y] + ".rb")
+			writeFile(f, "class Create"+getClase(tablas[y])+" < ActiveRecord::Migration")
+			writeFile(f, "	def change")
+			writeFile(f, "		create_table :"+tablas[y]+", id:false do |t|")
+			writeFile(f, ""+getColumnsRails(triples, tablas, y))
+			writeFile(f, "")
+			writeFile(f, "			t.timestamps null: false")
+			writeFile(f, "		end")
+			writeFile(f, ""+getForeignRails(triples, tablas, y))
+			writeFile(f, "	end")
+			writeFile(f, "end")
 		}
 		writeFile(f, " ")
 		defer closeFile(f)
@@ -1306,6 +1316,62 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 	}
 
 	return resultado + "\n" + foraneosLocales + "--------------------------------------------"
+}
+
+func getColumnsRails(triples [][][]string, tablas []string, element int) string {
+	resultado := ""
+	valorTemporal := ""
+	k := 0
+
+	for k = range triples[element][0] {
+
+		if triples[element][1][k] == "integer" {
+			valorTemporal = "t.integer :" + triples[element][0][k]
+		} else if triples[element][1][k] == "serial" {
+			valorTemporal = "t.primary_key :" + triples[element][0][k]
+		} else if triples[element][1][k] == "double" {
+			valorTemporal = "t.decimal :" + triples[element][0][k]
+		} else if triples[element][1][k] == "date" {
+			valorTemporal = "t.date :" + triples[element][0][k]
+		} else if ((triples[element][1][k])[0:9]) == "character" {
+			valorTemporal = "t.string :" + triples[element][0][k]
+		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
+			valorTemporal = "t.timestamp :" + triples[element][0][k]
+		} else {
+			valorTemporal = "t.string :" + triples[element][0][k]
+		}
+
+		if len(triples[element][4]) > 0 {
+			if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
+				valorTemporal = "t.belongs_to :" + getClaseForaneo(triples[element][0][k], triples, element) + ", index: true "
+			} else if stringInSlice(triples[element][0][k], triples[element][4]) {
+				valorTemporal = "t.references :" + getClaseForaneo(triples[element][0][k], triples, element) + ", index: true "
+			}
+		}
+		resultado = resultado + "\n				" + valorTemporal
+	}
+
+	return resultado
+}
+
+func getForeignRails(triples [][][]string, tablas []string, element int) string {
+	resultado := ""
+	k := 0
+
+	for k = range triples[element][0] {
+
+		if len(triples[element][4]) > 0 {
+			if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
+				resultado = resultado + "		add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", primary_key: \"" + getElementoForaneo(triples[element][0][k], triples, element) + "\"\n"
+			} else if stringInSlice(triples[element][0][k], triples[element][4]) {
+				resultado = resultado + "		add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", primary_key: \"" + getElementoForaneo(triples[element][0][k], triples, element) + "\"\n"
+			}
+
+		}
+
+	}
+
+	return resultado
 }
 
 //

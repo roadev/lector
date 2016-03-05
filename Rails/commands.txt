@@ -1,0 +1,54 @@
+rails generate scaffold tematica id_tematica:primary_key nombre:string 
+--------------------------------------------
+rails generate scaffold universidad id_universidad:primary_key nombre:string 
+--------------------------------------------
+rails generate scaffold country id_country:primary_key nombre:string 
+--------------------------------------------
+rails generate scaffold ciudad id_ciudad:primary_key nombre:string 
+--------------------------------------------
+rails generate scaffold curso id_curso:primary_key nombre:string fecha_inicio:date imagen_presentacion:string comienzo:string tematica:references nivel:string duracion:string esfuerzo:string precio:string prerrequisitos:string 
+add_foreign_key :curso, :tematica, primary_key: "id_tematica"
+--------------------------------------------
+rails generate scaffold usuario id:primary_key nombre:string apellido:string id_social:string red_social:string tipo_usuario:string fecha:timestamp tipo_inteligencia:string foto:string titulo:string ciudad:references country:references universidad:references 
+add_foreign_key :usuario, :ciudad, primary_key: "id_ciudad"
+add_foreign_key :usuario, :country, primary_key: "id_country"
+add_foreign_key :usuario, :universidad, primary_key: "id_universidad"
+--------------------------------------------
+rails generate scaffold avance curso:references usuario:references semana:integer tipo:string fecha:timestamp porcentaje:integer 
+add_foreign_key :avance, :curso, primary_key: "id_curso"
+add_foreign_key :avance, :usuario, primary_key: "id"
+--------------------------------------------
+rails generate scaffold badge curso:references color1:string color2:string 
+add_foreign_key :badge, :curso, primary_key: "id_curso"
+--------------------------------------------
+rails generate scaffold evaluacion id_evaluacion:primary_key curso:references calificable:string semana:integer nombre:string porcentaje:decimal 
+add_foreign_key :evaluacion, :curso, primary_key: "id_curso"
+--------------------------------------------
+rails generate scaffold calificacion usuario:references evaluacion:references nota:integer fecha:timestamp intentos:integer curso:references 
+add_foreign_key :calificacion, :usuario, primary_key: "id"
+add_foreign_key :calificacion, :evaluacion, primary_key: "id_evaluacion"
+add_foreign_key :calificacion, :curso, primary_key: "id_curso"
+--------------------------------------------
+rails generate scaffold leccion id_leccion:primary_key nombre:string curso:references server_contenido_grafico:string contenido_grafico:string contenido_texto:string semana:integer 
+add_foreign_key :leccion, :curso, primary_key: "id_curso"
+--------------------------------------------
+rails generate scaffold pregunta id_pregunta:primary_key nombre:string tipo:string opcion_a:string opcion_b:string opcion_c:string opcion_d:string opcion_multiple:string respuesta:string evaluacion:references 
+add_foreign_key :pregunta, :evaluacion, primary_key: "id_evaluacion"
+--------------------------------------------
+rails generate scaffold pregunta_leccion id_pregunta:primary_key usuario:references leccion:references pregunta:string fecha_creacion:timestamp relacion:integer 
+add_foreign_key :pregunta_leccion, :usuario, primary_key: "id"
+add_foreign_key :pregunta_leccion, :leccion, primary_key: "id_leccion"
+--------------------------------------------
+rails generate scaffold registro curso:references leccion:references usuario:references 
+add_foreign_key :registro, :curso, primary_key: "id_curso"
+add_foreign_key :registro, :leccion, primary_key: "id_leccion"
+add_foreign_key :registro, :usuario, primary_key: "id"
+--------------------------------------------
+rails generate scaffold relacion_usuario_curso usuario:references curso:references tipo_relacion:string fecha_creacion:timestamp estado:string 
+add_foreign_key :relacion_usuario_curso, :usuario, primary_key: "id"
+add_foreign_key :relacion_usuario_curso, :curso, primary_key: "id_curso"
+--------------------------------------------
+rails generate scaffold temario id_temario:primary_key titulo:string contenido:string posicion:integer curso:references tipo_contenido:string usuario:string 
+add_foreign_key :temario, :curso, primary_key: "id_curso"
+--------------------------------------------
+ 
