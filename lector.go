@@ -206,6 +206,14 @@ func main() {
 		writeFile(f, " ")
 		defer closeFile(f)
 
+		os.Mkdir("."+string(filepath.Separator)+"RailsMigrate", 0777)
+		f = createFile("RailsMigrate/commands.rb")
+		for y := range tablas {
+			writeFile(f, ""+getCommandsRails(triples, tablas, y))
+		}
+		writeFile(f, " ")
+		defer closeFile(f)
+
 	}
 
 	if lenguaje == "Django" {
@@ -1257,58 +1265,47 @@ func getVariablesUpdateLumen(triples [][][]string, tablas []string, element int)
 func getCommandsRails(triples [][][]string, tablas []string, element int) string {
 	resultado := ""
 	foraneosLocales := ""
+	valorTemporal := ""
 	k := 0
 	resultado = resultado + "rails generate scaffold " + tablas[element] + " "
 
 	for k = range triples[element][0] {
 
 		if triples[element][1][k] == "integer" {
-			resultado = resultado + triples[element][0][k] + ":integer"
+			valorTemporal = triples[element][0][k] + ":integer"
 		} else if triples[element][1][k] == "serial" {
-			resultado = resultado + triples[element][0][k] + ":primary_key"
-			///resultado = resultado + triples[element][0][k] + ":integer"
+			valorTemporal = triples[element][0][k] + ":primary_key"
+			///valorTemporal = valorTemporal + triples[element][0][k] + ":integer"
 		} else if triples[element][1][k] == "double" {
-			resultado = resultado + triples[element][0][k] + ":decimal"
+			valorTemporal = triples[element][0][k] + ":decimal"
 		} else if triples[element][1][k] == "date" {
-			resultado = resultado + triples[element][0][k] + ":date"
+			valorTemporal = triples[element][0][k] + ":date"
 		} else if ((triples[element][1][k])[0:9]) == "character" {
-			resultado = resultado + triples[element][0][k] + ":string"
+			valorTemporal = triples[element][0][k] + ":string"
 		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
-			resultado = resultado + triples[element][0][k] + ":timestamp"
+			valorTemporal = triples[element][0][k] + ":timestamp"
 		} else {
-			resultado = resultado + triples[element][0][k] + ":string"
+			valorTemporal = triples[element][0][k] + ":string"
 		}
 
-		//if stringInSlice(triples[element][0][k], triples[element][3]) && stringInSlice(triples[element][0][k], triples[element][4]) {
-		//	resultado = resultado + triples[element][0][k] + "= models.ForeignKey(primary_key=True)\n    "
-		//}
 		if len(triples[element][4]) > 0 {
-			if stringInSlice(triples[element][0][k], triples[element][4]) {
-				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
-				foraneosLocales = foraneosLocales + "add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", column: :" + getElementoForaneo(triples[element][0][k], triples, element) + ", primary_key: " + triples[element][0][k] + "\n"
-
+			if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
+				valorTemporal = getClaseForaneo(triples[element][0][k], triples, element) + ":references "
+				foraneosLocales = foraneosLocales + "add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", primary_key: \"" + getElementoForaneo(triples[element][0][k], triples, element) + "\"\n"
+			} else if stringInSlice(triples[element][0][k], triples[element][4]) {
+				valorTemporal = getClaseForaneo(triples[element][0][k], triples, element) + ":references "
+				foraneosLocales = foraneosLocales + "add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", primary_key: \"" + getElementoForaneo(triples[element][0][k], triples, element) + "\"\n"
 			} else {
-				resultado = resultado + " "
+				valorTemporal = valorTemporal + " "
 			}
 		} else {
-			resultado = resultado + " "
+			valorTemporal = valorTemporal + " "
 		}
-		/*else if len(triples[element][3]) > 0 {
-			if stringInSlice(triples[element][0][k], triples[element][3]) && triples[element][1][k] == "serial" {
-				resultado = resultado + ":" + getClaseForaneo(triples[element][0][k], triples, element) + " "
-			} else {
-				resultado = resultado + " "
-			}
-		}*/
 
-		/* else if stringInSlice(triples[element][0][k], triples[element][3]) {
-			resultado = resultado + triples[element][0][k] + "= models.CharField(primary_key=True, max_length=5000)\n    "
-		}
-		*/
-
+		resultado = resultado + valorTemporal
 	}
 
-	return resultado + "\n" + foraneosLocales
+	return resultado + "\n" + foraneosLocales + "--------------------------------------------"
 }
 
 //

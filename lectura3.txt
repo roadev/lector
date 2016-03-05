@@ -101,11 +101,11 @@ CREATE TABLE leccion
       ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 
-CREATE TABLE pais
+CREATE TABLE country
 (
-  id_pais serial NOT NULL,
+  id_country serial NOT NULL,
   nombre character varying(200),
-  CONSTRAINT "FK_pais" PRIMARY KEY (id_pais)
+  CONSTRAINT "FK_country" PRIMARY KEY (id_country)
 )
 
 CREATE TABLE pregunta
@@ -178,7 +178,7 @@ CREATE TABLE relacion_usuario_curso
 
   CREATE TABLE temario
   (
-    id_temario integer NOT NULL DEFAULT nextval('"Temario_id_temario_seq"'::regclass),
+    id_temario serial NOT NULL,
     titulo character varying(30),
     contenido character varying(5000),
     posicion integer,
