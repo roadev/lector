@@ -1274,7 +1274,6 @@ func getVariablesUpdateLumen(triples [][][]string, tablas []string, element int)
 //
 func getCommandsRails(triples [][][]string, tablas []string, element int) string {
 	resultado := ""
-	foraneosLocales := ""
 	valorTemporal := ""
 	k := 0
 	resultado = resultado + "rails generate scaffold " + tablas[element] + " "
@@ -1300,11 +1299,9 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 
 		if len(triples[element][4]) > 0 {
 			if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
-				valorTemporal = getClaseForaneo(triples[element][0][k], triples, element) + ":references "
-				foraneosLocales = foraneosLocales + "add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", primary_key: \"" + getElementoForaneo(triples[element][0][k], triples, element) + "\"\n"
+				valorTemporal = valorTemporal + " " + getClaseForaneo(triples[element][0][k], triples, element) + ":references "
 			} else if stringInSlice(triples[element][0][k], triples[element][4]) {
 				valorTemporal = getClaseForaneo(triples[element][0][k], triples, element) + ":references "
-				foraneosLocales = foraneosLocales + "add_foreign_key :" + tablas[element] + ", :" + getClaseForaneo(triples[element][0][k], triples, element) + ", primary_key: \"" + getElementoForaneo(triples[element][0][k], triples, element) + "\"\n"
 			} else {
 				valorTemporal = valorTemporal + " "
 			}
@@ -1315,7 +1312,7 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 		resultado = resultado + valorTemporal
 	}
 
-	return resultado + "\n" + foraneosLocales + "--------------------------------------------"
+	return resultado
 }
 
 func getColumnsRails(triples [][][]string, tablas []string, element int) string {
@@ -1343,7 +1340,7 @@ func getColumnsRails(triples [][][]string, tablas []string, element int) string 
 
 		if len(triples[element][4]) > 0 {
 			if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
-				valorTemporal = "t.belongs_to :" + getClaseForaneo(triples[element][0][k], triples, element) + ", index: true "
+				valorTemporal = "t.belongs_to :" + getClaseForaneo(triples[element][0][k], triples, element) + ", index: true, :null => false, :primary_key => true "
 			} else if stringInSlice(triples[element][0][k], triples[element][4]) {
 				valorTemporal = "t.references :" + getClaseForaneo(triples[element][0][k], triples, element) + ", index: true "
 			}
