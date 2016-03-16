@@ -29,7 +29,8 @@ func main() {
 	//  lenguaje := "PHP"  //v 0.1
 	//lenguaje := "Laravel" //v 0.9
 	//  lenguaje := "Django"  //v 0.3
-	lenguaje := "Rails" //v 0.1
+	//lenguaje := "Rails" //v 0.1
+	lenguaje := "Phoenix"
 
 	dbHost := "localhost"
 	dbUser := "usuario"
@@ -196,6 +197,17 @@ func main() {
 	for x := range triples {
 		fmt.Printf("tabla %v \n", tablas[x])
 		fmt.Printf(" %v \n\n", triples[x])
+	}
+
+	if lenguaje == "Phoenix" {
+		os.Mkdir("."+string(filepath.Separator)+"Phoenix", 0777)
+		f := createFile("Phoenix/commands.txt")
+		for y := range tablas {
+			writeFile(f, ""+getCommandsPhoenix(triples, tablas, y))
+		}
+		writeFile(f, " ")
+		defer closeFile(f)
+
 	}
 
 	if lenguaje == "Rails" {
@@ -1266,6 +1278,50 @@ func getVariablesUpdateLumen(triples [][][]string, tablas []string, element int)
 	for x := range triples[element][0] {
 		resultado = resultado + "$" + tablas[element] + "->" + triples[element][0][x] + "= $request->input('" + triples[element][0][x] + "');\n\t\t"
 	}
+	return resultado
+}
+
+//
+//METODOS PHOENIX
+//
+func getCommandsPhoenix(triples [][][]string, tablas []string, element int) string {
+	resultado := ""
+	valorTemporal := ""
+	k := 0
+	resultado = resultado + "mix phoenix.gen.html " + getClase(tablas[element]) + " " + tablas[element] + " "
+
+	for k = range triples[element][0] {
+
+		if triples[element][1][k] == "integer" {
+			valorTemporal = triples[element][0][k] + ":integer"
+		} else if triples[element][1][k] == "serial" {
+			valorTemporal = triples[element][0][k] + ":primary_key"
+			///valorTemporal = valorTemporal + triples[element][0][k] + ":integer"
+		} else if triples[element][1][k] == "double" {
+			valorTemporal = triples[element][0][k] + ":decimal"
+		} else if triples[element][1][k] == "date" {
+			valorTemporal = triples[element][0][k] + ":date"
+		} else if ((triples[element][1][k])[0:9]) == "character" {
+			valorTemporal = triples[element][0][k] + ":string"
+		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
+			valorTemporal = triples[element][0][k] + ":timestamp"
+		} else {
+			valorTemporal = triples[element][0][k] + ":string"
+		}
+
+		if len(triples[element][4]) > 0 {
+			if stringInSlice(triples[element][0][k], triples[element][4]) {
+				valorTemporal = triples[element][0][k] + ":references:" + getClaseForaneo(triples[element][0][k], triples, element) + " "
+			} else {
+				valorTemporal = valorTemporal + " "
+			}
+		} else {
+			valorTemporal = valorTemporal + " "
+		}
+
+		resultado = resultado + valorTemporal
+	}
+
 	return resultado
 }
 
