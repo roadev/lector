@@ -28,9 +28,9 @@ func main() {
 	//-------Variables de control--------
 	//  lenguaje := "PHP"  //v 0.1
 	//lenguaje := "Laravel" //v 0.9
-	//  lenguaje := "Django"  //v 0.3
+	lenguaje := "Django" //v 0.3
 	//lenguaje := "Rails" //v 0.1
-	lenguaje := "Phoenix"
+	//lenguaje := "Phoenix"
 
 	dbHost := "localhost"
 	dbUser := "usuario"
@@ -253,16 +253,23 @@ func main() {
 		defer closeFile(f)
 
 		f = createFile("Django/forms.py")
-		writeFile(f, "from django import forms")
-		for x := range tablas {
-			writeFile(f, "from models import "+getClase(tablas[x]))
-		}
+		writeFile(f, "from django.forms import ModelForm")
+		writeFile(f, "from models import *")
+		writeFile(f, "from .forms import *")
+
 		writeFile(f, "")
 		for y := range tablas {
 			writeFile(f, "")
 			writeFile(f, "class "+getClase(tablas[y])+"Form(forms.ModelForm):")
 			writeFile(f, "    class Meta:")
 			writeFile(f, "        model = "+getClase(tablas[y]))
+			writeFile(f, "        fields = ("+getColumnasEspeciales(triples, y, 3, 2)+")")
+			writeFile(f, "        widgets = {")
+			writeFile(f, "        "+getWidgetsDjango(triples, tablas, y))
+			writeFile(f, "        }")
+			writeFile(f, "        labels = {")
+			writeFile(f, "        "+getLabelsDjango(triples, tablas, y))
+			writeFile(f, "        }")
 		}
 		writeFile(f, "")
 		defer closeFile(f)
@@ -436,7 +443,7 @@ func main() {
 			writeFile(f, "      $this->query = \"")
 			writeFile(f, "      INSERT INTO")
 			writeFile(f, "      usuarios")
-			writeFile(f, "      ("+getColumnasEspecialesPHP(triples, x, 1, 1)+")")
+			writeFile(f, "      ("+getColumnasEspeciales(triples, x, 1, 1)+")")
 			writeFile(f, "      VALUES")
 			writeFile(f, "      ('$nombre', '$apellido', '$email', '$clave')")
 			writeFile(f, "      \";")
@@ -1235,34 +1242,55 @@ func getColumnasPHP(triples [][][]string, element int, tipo int) string {
 
 //Metodo que retorna las llaves primarias o todas aquellas que no hacen parte de la llave primaria
 // tipoDatos: 0 las llaves primarias, 1 las llaves que no son primarias
-func getColumnasEspecialesPHP(triples [][][]string, element int, tipoDatos int, tipoRespuestas int) string {
+func getColumnasEspeciales(triples [][][]string, element int, tipoDatos int, tipoRespuestas int) string {
 	resultado := ""
 	cantidad := 0
-	k := 1
-	suf, pref := "", ""
+	k := 0
+	sim := " "
 
+	if tipoRespuestas == 2 {
+		sim = "'"
+	}
 	if tipoDatos == 1 { //las columnas sobrantes que no son llaves primarias
 		cantidad = len(triples[element][0])
 		for k < cantidad {
 			if !stringInSlice(triples[element][0][k], triples[element][3]) {
-				resultado = resultado + pref + triples[element][0][k] + suf + ", "
+				resultado = resultado + sim + triples[element][0][k] + sim + ", "
 			}
 			k = k + 1
 		}
-		resultado = (resultado)[0 : len(resultado)-2]
-	}
-	if tipoDatos == 2 { //todas
+		if len(resultado) > 0 {
+			resultado = (resultado)[0 : len(resultado)-2]
+		}
+
+	} else if tipoDatos == 2 { //todas
 		cantidad = len(triples[element][0])
 		for k < cantidad {
-			resultado = resultado + pref + triples[element][0][k] + suf + ", "
+			resultado = resultado + sim + triples[element][0][k] + sim + ", "
 			k = k + 1
 		}
-		resultado = (resultado)[0 : len(resultado)-2]
+		if len(resultado) > 0 {
+			resultado = (resultado)[0 : len(resultado)-2]
+		}
+		fmt.Printf("%v\n", resultado)
+
+	} else if tipoDatos == 3 { //las columnas sobrantes que no son llaves primarias
+		cantidad = len(triples[element][0])
+		for k < cantidad {
+			if triples[element][1][k] != "serial" {
+				resultado = resultado + sim + triples[element][0][k] + sim + ", "
+			}
+			k = k + 1
+		}
+		if len(resultado) > 0 {
+			resultado = (resultado)[0 : len(resultado)-2]
+		}
+
 	} else { //las llaves primarias
 		resultado = "" + triples[element][3][0] + ""
 		cantidad = len(triples[element][3])
 		for k < cantidad {
-			resultado = resultado + ", " + pref + triples[element][3][k] + suf + ""
+			resultado = resultado + ", " + sim + triples[element][3][k] + sim + ""
 			k = k + 1
 		}
 	}
@@ -1430,6 +1458,69 @@ func getForeignRails(triples [][][]string, tablas []string, element int) string 
 //
 //METODOS DJANGO
 //
+
+func getLabelsDjango(triples [][][]string, tablas []string, element int) string {
+	resultado := ""
+	k := 0
+	valorTemporal := ""
+
+	for k = range triples[element][0] {
+
+		if triples[element][1][k] == "serial" {
+			valorTemporal = " "
+		} else {
+			valorTemporal = "'" + triples[element][0][k] + "' : '" + getClase(triples[element][0][k]) + "' ,\n\t\t"
+		}
+		/*
+			if len(triples[element][4]) > 0 {
+				if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
+					valorTemporal = valorTemporal + " " + getClaseForaneo(triples[element][0][k], triples, element) + ":references "
+				} else if stringInSlice(triples[element][0][k], triples[element][4]) {
+					valorTemporal = getClaseForaneo(triples[element][0][k], triples, element) + ":references "
+				} else {
+					valorTemporal = valorTemporal + " "
+				}
+			} else {
+				valorTemporal = valorTemporal + " "
+			}
+		*/
+		resultado = resultado + valorTemporal + " "
+	}
+
+	return resultado
+}
+
+func getWidgetsDjango(triples [][][]string, tablas []string, element int) string {
+	resultado := ""
+	k := 0
+	valorTemporal := ""
+
+	for k = range triples[element][0] {
+
+		if triples[element][1][k] == "serial" {
+			valorTemporal = " "
+		} else {
+			valorTemporal = "'" + triples[element][0][k] + "' : forms.TextInput(attrs={'class': 'form-control'}),\n\t\t"
+		}
+		/*
+			if len(triples[element][4]) > 0 {
+				if stringInSlice(triples[element][0][k], triples[element][4]) && stringInSlice(triples[element][0][k], triples[element][3]) {
+					valorTemporal = valorTemporal + " " + getClaseForaneo(triples[element][0][k], triples, element) + ":references "
+				} else if stringInSlice(triples[element][0][k], triples[element][4]) {
+					valorTemporal = getClaseForaneo(triples[element][0][k], triples, element) + ":references "
+				} else {
+					valorTemporal = valorTemporal + " "
+				}
+			} else {
+				valorTemporal = valorTemporal + " "
+			}
+		*/
+		resultado = resultado + valorTemporal + " "
+	}
+
+	return resultado
+}
+
 func getVariablesModeloDjango(triples [][][]string, tablas []string, element int) string {
 	resultado := ""
 	//tipo := ""
@@ -1447,8 +1538,10 @@ func getVariablesModeloDjango(triples [][][]string, tablas []string, element int
 			resultado = resultado + triples[element][0][k] + "= models.IntegerField()\n    "
 		} else if triples[element][1][k] == "date" {
 			resultado = resultado + triples[element][0][k] + "= models.DateField()\n    "
-		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
-			resultado = resultado + triples[element][0][k] + "= models.DateTimeField(auto_now_add=True)\n    "
+		} else if len((triples[element][1][k])) > 9 {
+			if ((triples[element][1][k])[0:9]) == "timestamp" {
+				resultado = resultado + triples[element][0][k] + "= models.DateTimeField(auto_now_add=True)\n    "
+			}
 		} else if len(triples[element][1][k]) > 17 {
 			resultado = resultado + triples[element][0][k] + "= models.CharField(max_length=" + (triples[element][1][k])[18:len(triples[element][1][k])] + "\n    "
 		} else {
