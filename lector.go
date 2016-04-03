@@ -28,8 +28,8 @@ func main() {
 	//-------Variables de control--------
 	//  lenguaje := "PHP"  //v 0.1
 	//lenguaje := "Laravel" //v 0.9
-	lenguaje := "Django" //v 0.3
-	//lenguaje := "Rails" //v 0.1
+	//lenguaje := "Django" //v 0.3
+	lenguaje := "Rails" //v 0.1
 	//lenguaje := "Phoenix"
 
 	dbHost := "localhost"
@@ -1373,10 +1373,14 @@ func getCommandsRails(triples [][][]string, tablas []string, element int) string
 			valorTemporal = triples[element][0][k] + ":decimal"
 		} else if triples[element][1][k] == "date" {
 			valorTemporal = triples[element][0][k] + ":date"
-		} else if ((triples[element][1][k])[0:9]) == "character" {
-			valorTemporal = triples[element][0][k] + ":string"
-		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
-			valorTemporal = triples[element][0][k] + ":timestamp"
+		} else if len((triples[element][1][k])) > 9 {
+
+			if ((triples[element][1][k])[0:9]) == "timestamp" {
+				valorTemporal = triples[element][0][k] + ":timestamp"
+			} else {
+				valorTemporal = triples[element][0][k] + ":string"
+			}
+
 		} else {
 			valorTemporal = triples[element][0][k] + ":string"
 		}
@@ -1414,10 +1418,14 @@ func getColumnsRails(triples [][][]string, tablas []string, element int) string 
 			valorTemporal = "t.decimal :" + triples[element][0][k]
 		} else if triples[element][1][k] == "date" {
 			valorTemporal = "t.date :" + triples[element][0][k]
-		} else if ((triples[element][1][k])[0:9]) == "character" {
-			valorTemporal = "t.string :" + triples[element][0][k]
-		} else if ((triples[element][1][k])[0:9]) == "timestamp" {
-			valorTemporal = "t.timestamp :" + triples[element][0][k]
+		} else if len((triples[element][1][k])) > 9 {
+
+			if ((triples[element][1][k])[0:9]) == "timestamp" {
+				valorTemporal = "t.timestamp :" + triples[element][0][k]
+			} else {
+				valorTemporal = "t.string :" + triples[element][0][k]
+			}
+
 		} else {
 			valorTemporal = "t.string :" + triples[element][0][k]
 		}
